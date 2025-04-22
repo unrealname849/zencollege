@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Premier College Finder</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            /* Subtle gradient background */
+            background: linear-gradient(to bottom, #eef2f7, #dce4ec);
+            color: #333;
+            min-height: 100vh;
+        }
+        #root {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #004085;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        /* --- Chatbot Styles --- */
+        .chatbot {
+            background-color: #e9f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .chatbot p {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #004085;
+            font-size: 1.05rem;
+        }
+        .chatbot-options button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 15px;
+            margin-right: 10px;
+            margin-bottom: 5px; /* Add space if buttons wrap */
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+        .chatbot-options button:hover {
+            background-color: #0056b3;
+        }
+         .chatbot-options button:last-child {
+            margin-right: 0;
+        }
+
+        /* --- Search Controls --- */
+        .search-controls {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 1px solid #b8daff;
+            border-radius: 8px;
+            background-color: #f8faff; /* Slightly lighter than chatbot */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Adjusted minmax */
+            gap: 20px; /* Increased gap */
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #004085;
+            font-size: 0.95rem; /* Slightly smaller label */
+        }
+        input[type="text"], input[type="number"], select {
+            padding: 12px; /* Slightly larger padding */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+             border-color: #007bff;
+             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+             outline: none;
+        }
+        .search-controls button { /* Search button */
+            grid-column: 1 / -1; /* Span across all columns */
+            padding: 12px;
+            background-color: #28a745; /* Green color */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+            margin-top: 10px; /* Add some space above */
+        }
+        .search-controls button:hover:not(:disabled) {
+            background-color: #218838; /* Darker green */
+        }
+        .search-controls button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* --- Results --- */
+        .results-list {
+            margin-top: 30px;
+        }
+        .results-list h2 {
+            color: #004085;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .college-item {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative; /* For potential future additions like icons */
+        }
+        .college-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-color: #007bff; /* Highlight border on hover */
+        }
+        .college-item h3 {
+            margin-top: 0;
+            margin-bottom: 8px; /* Increased spacing */
+            color: #007bff;
+        }
+        .college-item p {
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+         .college-item p strong {
+             color: #333;
+             min-width: 100px; /* Align labels somewhat */
+             display: inline-block;
+         }
+
+        .loading, .error, .info { /* Added info class */
+            text-align: center;
+            padding: 15px 20px; /* Adjusted padding */
+            font-weight: 500; /* Slightly less bold */
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+        .loading {
+            color: #856404; /* Darker yellow */
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+        }
+        .error {
+            color: #721c24; /* Darker red */
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+         .info { /* Style for no results */
+             color: #0c5460;
+             background-color: #d1ecf1;
+             border-color: #bee5eb;
+         }
+
+
+        /* --- Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.65); /* Slightly darker overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px; /* Add padding for smaller screens */
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 30px 35px; /* Increased padding */
+            border-radius: 8px;
+            max-width: 750px; /* Increased max-width */
+            width: 100%; /* Responsive width */
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.8rem; /* Larger close button */
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #aaa;
+            transition: color 0.2s ease;
+            line-height: 1; /* Ensure proper alignment */
+        }
+        .modal-close:hover {
+            color: #333; /* Darker hover */
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #004085;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 25px; /* Increased spacing */
+        }
+         .modal-content h4 {
+             margin-top: 20px; /* Increased spacing */
+             margin-bottom: 10px;
+             color: #0056b3;
+             border-bottom: 1px solid #eee; /* Subtle separator */
+             padding-bottom: 5px;
+         }
+        .modal-content p {
+            margin-bottom: 10px; /* Increased spacing */
+            font-size: 1rem;
+            color: #444;
+            line-height: 1.7; /* Improve readability */
+        }
+         .modal-content p strong {
+             color: #111; /* Darker labels */
+             margin-right: 5px;
+         }
+        .modal-content a {
+             color: #007bff;
+             text-decoration: none;
+             word-break: break-all; /* Prevent long URLs from breaking layout */
+         }
+         .modal-content a:hover {
+             text-decoration: underline;
+         }
+         .modal-content ul {
+             padding-left: 25px; /* Indent list */
+             margin-top: 5px;
+             margin-bottom: 15px; /* Spacing below list */
+         }
+          .modal-content ul li {
+             margin-bottom: 8px;
+             color: #444;
+         }
+         .modal-content small {
+             display: block; /* Put notes on new line */
+             margin-top: 5px;
+             color: #666;
+             font-size: 0.9em;
+         }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Helper Functions ---
+        const formatNumber = (num) => {
+            if (num === null || num === undefined) return 'N/A';
+            return num.toLocaleString();
+        };
+        const formatCurrency = (num) => {
+             if (num === null || num === undefined) return 'N/A';
+             return '$' + num.toLocaleString();
+        };
+        const formatPercentage = (num) => {
+             if (num === null || num === undefined) return 'N/A';
+             // API percentages are often 0-1, convert to 0-100
+             return (num * 100).toFixed(1) + '%';
+        };
+
+         // Helper to safely get nested properties
+        const safeGet = (obj, path, formatter = (val) => val === null || val === undefined ? 'N/A' : val) => {
+            const keys = path.split('.');
+            let current = obj;
+            for (const key of keys) {
+                if (current === null || current === undefined) return 'N/A';
+                current = current[key];
+            }
+             // Apply formatter only if value is not null/undefined at the end
+            return (current === null || current === undefined) ? 'N/A' : formatter(current);
+        };
+
+        // --- Chatbot Component ---
+        const Chatbot = () => {
+            const [step, setStep] = useState(0);
+
+            const messages = [
+                { // Step 0: Initial Welcome
+                    text: "Welcome to Premier College Finder! How can I help you get started?",
+                    options: [
+                        { text: "How do I search?", nextStep: 1 },
+                        { text: "What filters can I use?", nextStep: 2 },
+                    ]
+                },
+                { // Step 1: How to Search
+                    text: "Easy! Just type a college name (or part of it) into the 'College Name' box below. You can also add filters like size or cost.",
+                    options: [
+                        { text: "What filters are available?", nextStep: 2 },
+                        { text: "Got it!", nextStep: 0 },
+                    ]
+                },
+                 { // Step 2: Available Filters
+                    text: "You can filter by: \n • Student Size (Minimum and/or Maximum number of students) \n • Max Annual Attendance Cost (Approximate total cost including tuition, fees, room & board). \n Fill in the boxes below and click 'Search Colleges'!",
+                    options: [
+                        { text: "How do I search by name?", nextStep: 1 },
+                         { text: "Thanks!", nextStep: 0 },
+                    ]
+                },
+                 // Add more steps if needed
+            ];
+
+            const currentMessage = messages[step];
+
+            const handleOptionClick = (nextStep) => {
+                setStep(nextStep);
+            };
+
+            return (
+                <div className="chatbot">
+                    <p>{currentMessage.text.split('\n').map((line, i) => <span key={i}>{line}<br/></span>)}</p>
+                    <div className="chatbot-options">
+                        {currentMessage.options.map((option, index) => (
+                            <button key={index} onClick={() => handleOptionClick(option.nextStep)}>
+                                {option.text}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+
+        // --- Modal Component ---
+        const CollegeDetailModal = ({ college, onClose }) => {
+            if (!college) return null;
+
+             // Helper function to format the college website URL
+             const formatUrl = (url) => {
+                if (!url) return 'N/A';
+                 // Add http:// if missing, common issue with API data
+                 const correctedUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `http://${url}`;
+                 return <a href={correctedUrl} target="_blank" rel="noopener noreferrer">{url}</a>;
+             };
+
+             // Map ownership codes
+             const getOwnership = (code) => {
+                 const ownershipMap = { 1: 'Public', 2: 'Private Non-profit', 3: 'Private For-profit' };
+                 return ownershipMap[code] || 'N/A';
+             };
+
+            // Map degree codes
+             const getDegreeType = (code) => {
+                const degreeMap = { 0: 'Non-Degree-Granting', 1: "Certificate Degree", 2: "Associate Degree", 3: "Bachelor's Degree", 4: "Graduate Degree" };
+                 return degreeMap[code] || 'N/A';
+             }
+
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close" onClick={onClose} aria-label="Close modal">&times;</button>
+
+                        <h2>{safeGet(college, 'school.name')}</h2>
+
+                        <p><strong>Location:</strong> {safeGet(college, 'school.city')}, {safeGet(college, 'school.state')} {safeGet(college, 'school.zip')}</p>
+                        <p><strong>Website:</strong> {safeGet(college, 'school.school_url', formatUrl)}</p>
+                        <p><strong>Ownership:</strong> {safeGet(college, 'school.ownership', getOwnership)}</p>
+                        <p><strong>Predominant Degree:</strong> {safeGet(college, 'latest.school.degrees_awarded.predominant', getDegreeType)}</p> {/* Updated path based on common API structure */}
+
+
+                        <h4>Admissions (Latest Data)</h4>
+                        <p><strong>Overall Admission Rate:</strong> {safeGet(college, 'latest.admissions.admission_rate.overall', formatPercentage)}</p>
+                        <ul>
+                             <li><strong>SAT Evidence-Based Reading & Writing (25th-75th Percentile):</strong> {safeGet(college, 'latest.admissions.sat_scores.25th_percentile.critical_reading')} - {safeGet(college, 'latest.admissions.sat_scores.75th_percentile.critical_reading')}</li> {/* Updated path */}
+                             <li><strong>SAT Math (25th-75th Percentile):</strong> {safeGet(college, 'latest.admissions.sat_scores.25th_percentile.math')} - {safeGet(college, 'latest.admissions.sat_scores.75th_percentile.math')}</li> {/* Updated path */}
+                             <li><strong>ACT Composite (25th-75th Percentile):</strong> {safeGet(college, 'latest.admissions.act_scores.25th_percentile.composite')} - {safeGet(college, 'latest.admissions.act_scores.75th_percentile.composite')}</li> {/* Updated path */}
+                        </ul>
+                         <p><small>Note: Test scores (SAT/ACT) are optional at many institutions and data might be limited or unavailable.</small></p>
+
+                        <h4>Cost & Aid (Latest Data)</h4>
+                        <p><strong>Average Annual Cost:</strong> {safeGet(college, 'latest.cost.attendance.academic_year', formatCurrency)} <small>(Includes tuition, fees, books, room & board)</small></p>
+                        <p><strong>Tuition and Fees (In-State):</strong> {safeGet(college, 'latest.cost.tuition.in_state', formatCurrency)}</p>
+                        <p><strong>Tuition and Fees (Out-of-State):</strong> {safeGet(college, 'latest.cost.tuition.out_of_state', formatCurrency)}</p>
+                        <p><strong>Percent Receiving Federal Loans:</strong> {safeGet(college, 'latest.aid.federal_loan_rate', formatPercentage)}</p>
+                         <p><strong>Percent Receiving Pell Grants:</strong> {safeGet(college, 'latest.aid.pell_grant_rate', formatPercentage)}</p>
+
+                        <h4>Outcomes (Latest Data)</h4>
+                        <p><strong>Undergraduate Student Size:</strong> {safeGet(college, 'latest.student.size', formatNumber)}</p>
+                        <p><strong>Graduation Rate (4-year institutions, 150% time):</strong> {safeGet(college, 'latest.completion.completion_rate_4yr_150nt', formatPercentage)}</p>
+                         <p><strong>Median Earnings (10 Yrs After Entry):</strong> {safeGet(college, 'latest.earnings.10_yrs_after_entry.median', formatCurrency)}</p>
+                         <p><strong>Median Debt for Completers:</strong> {safeGet(college, 'latest.aid.median_debt.completers.overall', formatCurrency)}</p>
+
+
+                        {/* Add more detailed fields here if needed, checking API docs for correct paths */}
+
+                    </div>
+                </div>
+            );
+        };
+
+
+        // --- Main App Component ---
+        const App = () => {
+            // !!! IMPORTANT: Replace with your actual Data.gov API key !!!
+            // Get one free at: https://api.data.gov/signup/
+            const DATA_GOV_API_KEY = "vwOMaF6FXDv56kEaDt0ocaumS9FhF1c6ckp1n4Mz"; // <-- PUT YOUR KEY HERE
+            const API_BASE_URL = "https://api.data.gov/ed/collegescorecard/v1/schools.json?";
+
+            // State for search and filters
+            const [searchTerm, setSearchTerm] = useState('');
+            const [minSize, setMinSize] = useState('');
+            const [maxSize, setMaxSize] = useState('');
+            const [maxTuition, setMaxTuition] = useState(''); // Using max attendance cost
+
+            // State for results and UI state
+            const [colleges, setColleges] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
+            const [info, setInfo] = useState(null); // For info messages like "no results"
+            const [selectedCollege, setSelectedCollege] = useState(null);
+
+            // Define the fields we want to fetch from the API
+             // Check documentation for latest fields: https://collegescorecard.ed.gov/data/documentation/
+            const API_FIELDS = [
+                'id',
+                'school.name',
+                'school.city',
+                'school.state',
+                'school.zip',
+                'school.school_url',
+                'school.ownership',
+                'school.locale', // e.g., City, Suburban, Rural
+                'latest.school.degrees_awarded.predominant', // Check path
+                'latest.student.size',
+                'latest.admissions.admission_rate.overall',
+                'latest.admissions.sat_scores.25th_percentile.critical_reading', // Check path
+                'latest.admissions.sat_scores.75th_percentile.critical_reading', // Check path
+                'latest.admissions.sat_scores.25th_percentile.math', // Check path
+                'latest.admissions.sat_scores.75th_percentile.math', // Check path
+                'latest.admissions.act_scores.25th_percentile.composite', // Check path
+                'latest.admissions.act_scores.75th_percentile.composite', // Check path
+                'latest.cost.attendance.academic_year',
+                'latest.cost.tuition.in_state',
+                'latest.cost.tuition.out_of_state',
+                'latest.aid.federal_loan_rate',
+                'latest.aid.pell_grant_rate',
+                'latest.aid.median_debt.completers.overall',
+                'latest.earnings.10_yrs_after_entry.median',
+                'latest.completion.completion_rate_4yr_150nt', // Common grad rate metric
+                // Add more fields here if needed
+            ].join(',');
+
+             // Check API Key on component mount
+             useEffect(() => {
+                if (!DATA_GOV_API_KEY || DATA_GOV_API_KEY === "YOUR_DATA.GOV_API_KEY" || DATA_GOV_API_KEY.length < 10) { // Basic check
+                     setError("API Key Missing/Invalid: Please get a free key from api.data.gov and add it to the DATA_GOV_API_KEY variable in the script.");
+                 }
+             }, []);
+
+
+            const handleSearch = async () => {
+                // Don't search if API key is missing/invalid
+                 if (!DATA_GOV_API_KEY || DATA_GOV_API_KEY === "YOUR_DATA.GOV_API_KEY" || DATA_GOV_API_KEY.length < 10) {
+                     setError("API Key Missing/Invalid: Cannot search without a valid API key.");
+                     return;
+                 }
+
+                setLoading(true);
+                setError(null);
+                setInfo(null); // Clear info message
+                setColleges([]);
+                setSelectedCollege(null);
+
+                let queryParams = new URLSearchParams({
+                    api_key: DATA_GOV_API_KEY,
+                    fields: API_FIELDS,
+                    per_page: 50 // Fetch fewer results initially for faster response, implement pagination later
+                });
+
+                // Add search term filter
+                if (searchTerm.trim()) {
+                    // Use autocomplete for better name matching if possible, or contains
+                     queryParams.append('school.name__icontains', searchTerm.trim()); // Case-insensitive contains
+                }
+
+                 // Build range filters carefully, ensuring values are numbers
+                 const numMinSize = parseInt(minSize, 10);
+                 const numMaxSize = parseInt(maxSize, 10);
+                 const numMaxTuition = parseInt(maxTuition, 10);
+
+                // Add size filter
+                 if (!isNaN(numMinSize) && !isNaN(numMaxSize)) {
+                     queryParams.append('latest.student.size__range', `${numMinSize}..${numMaxSize}`);
+                 } else if (!isNaN(numMinSize)) {
+                     queryParams.append('latest.student.size__gte', numMinSize);
+                 } else if (!isNaN(numMaxSize)) {
+                     queryParams.append('latest.student.size__lte', numMaxSize);
+                 }
+
+                // Add tuition filter (using max attendance cost)
+                 if (!isNaN(numMaxTuition)) {
+                     queryParams.append('latest.cost.attendance.academic_year__lte', numMaxTuition);
+                 }
+
+                // --- Add more filters based on API documentation ---
+                 // Example: Filter by state (requires state abbreviation)
+                 // queryParams.append('school.state', 'CA');
+                 // Example: Filter by predominant degree (use codes: 2 for Associate, 3 for Bachelor's)
+                 // queryParams.append('latest.school.degrees_awarded.predominant', '3');
+                 // Example: Filter by ownership (1: Public, 2: Private non-profit, 3: Private for-profit)
+                 // queryParams.append('school.ownership', '1');
+
+
+                const url = `${API_BASE_URL}${queryParams.toString()}`;
+                console.log("Fetching URL:", url); // Log for debugging
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json(); // Attempt to parse JSON regardless of status
+
+                    if (!response.ok) {
+                         // Try to get error message from API response body
+                         const errorMessage = data?.error?.message || `HTTP error! status: ${response.status} ${response.statusText}`;
+                        throw new Error(errorMessage);
+                    }
+
+                     if (!data.results || data.results.length === 0) {
+                         setColleges([]);
+                         // Use setInfo for non-error messages like "no results"
+                         setInfo("No colleges found matching your criteria. Try broadening your search.");
+                     } else {
+                         setColleges(data.results);
+                         // Optionally, sort results here if needed
+                         // E.g., data.results.sort((a, b) => a['school.name'].localeCompare(b['school.name']));
+                     }
+
+                } catch (e) {
+                    console.error("Fetch error:", e);
+                    setError(`Failed to fetch data: ${e.message}. Please check your API key, network connection, and filter values.`);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+             // Function to open the modal
+            const openCollegeModal = (college) => {
+                setSelectedCollege(college);
+            };
+
+            // Function to close the modal
+            const closeCollegeModal = () => {
+                setSelectedCollege(null);
+            };
+
+
+            return (
+                <div>
+                    <h1>Premier College Finder</h1>
+
+                    {/* Display API Key Error prominently if it exists */}
+                    {error && error.includes("API Key") && <div className="error">{error}</div>}
+
+                    {/* Chatbot Component */}
+                    <Chatbot />
+
+                    <div className="search-controls">
+                        <div className="control-group">
+                            <label htmlFor="searchTerm">College Name:</label>
+                            <input
+                                id="searchTerm"
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="e.g., Stanford"
+                                disabled={loading}
+                            />
+                        </div>
+
+                         {/* Student Size Inputs */}
+                        <div className="control-group">
+                             <label>Student Size:</label>
+                             <input
+                                 type="number"
+                                 value={minSize}
+                                 onChange={(e) => setMinSize(e.target.value)}
+                                 placeholder="Min size (e.g., 1000)"
+                                 min="0"
+                                 disabled={loading}
+                             />
+                        </div>
+                         <div className="control-group">
+                             <label>&nbsp;</label> {/* Spacer label */}
+                             <input
+                                 type="number"
+                                 value={maxSize}
+                                 onChange={(e) => setMaxSize(e.target.value)}
+                                 placeholder="Max size (e.g., 50000)"
+                                 min="0"
+                                 disabled={loading}
+                             />
+                         </div>
+
+                        <div className="control-group">
+                            <label htmlFor="maxTuition">Max Annual Cost ($):</label>
+                            <input
+                                id="maxTuition"
+                                type="number"
+                                value={maxTuition}
+                                onChange={(e) => setMaxTuition(e.target.value)}
+                                placeholder="e.g., 30000"
+                                min="0"
+                                disabled={loading}
+                            />
+                        </div>
+
+                         {/* Add more filter inputs here */}
+
+
+                        <button onClick={handleSearch} disabled={loading}>
+                            {loading ? 'Searching...' : 'Search Colleges'}
+                        </button>
+                    </div>
+
+                     {/* Display Loading, Error (non-API key), or Info messages */}
+                     {loading && <div className="loading">Loading colleges...</div>}
+                     {error && !error.includes("API Key") && <div className="error">{error}</div>}
+                     {info && <div className="info">{info}</div>}
+
+
+                    <div className="results-list">
+                         {colleges.length > 0 && !loading && <h2>Found Colleges ({colleges.length})</h2>}
+                         {colleges.map(college => (
+                            <div
+                                key={college.id} // API provides a unique ID
+                                className="college-item"
+                                onClick={() => openCollegeModal(college)}
+                                role="button" // Semantics for clickable element
+                                tabIndex="0" // Make it focusable
+                                onKeyPress={(e) => (e.key === 'Enter' || e.key === ' ') && openCollegeModal(college)} // Accessibility
+                            >
+                                <h3>{safeGet(college, 'school.name')}</h3>
+                                <p><strong>Location:</strong> {safeGet(college, 'school.city')}, {safeGet(college, 'school.state')}</p>
+                                <p><strong>Size:</strong> {safeGet(college, 'latest.student.size', formatNumber)}</p>
+                                 <p><strong>Cost:</strong> {safeGet(college, 'latest.cost.attendance.academic_year', formatCurrency)}</p>
+                                 {/* Add other key summary info if desired */}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Render the modal conditionally */}
+                    <CollegeDetailModal
+                        college={selectedCollege}
+                        onClose={closeCollegeModal}
+                    />
+
+                </div>
+            );
+        };
+
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+
+    </script>
+</body>
+</html>
