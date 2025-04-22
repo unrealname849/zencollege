@@ -5,13 +5,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* --- Base & Layout Styles --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            background-color: #eef2f7;
+            background: linear-gradient(to bottom, #eef2f7, #dce4ec);
             color: #333;
+            min-height: 100vh;
         }
         #root {
             max-width: 900px;
@@ -19,185 +21,114 @@
             background: #fff;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
         h1 {
             text-align: center;
             color: #004085;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            font-weight: 600;
         }
-        .search-controls {
-            margin-bottom: 30px;
-            padding: 20px;
+
+        /* --- Chatbot Styles (Re-added) --- */
+        .chatbot {
+            background-color: #e9f3ff;
             border: 1px solid #b8daff;
             border-radius: 8px;
-            background-color: #e9f3ff;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 8px;
-            font-weight: bold;
+        .chatbot p {
+            margin-top: 0;
+            margin-bottom: 15px;
             color: #004085;
+            font-size: 1.05rem;
+            white-space: pre-line; /* Respect line breaks in text */
         }
-        input[type="text"], input[type="number"], select {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        button {
-            grid-column: 1 / -1; /* Span across all columns */
-            padding: 12px;
+        .chatbot-options button {
             background-color: #007bff;
             color: white;
             border: none;
             border-radius: 4px;
+            padding: 8px 15px;
+            margin-right: 10px;
+            margin-bottom: 5px; /* Add space if buttons wrap */
             cursor: pointer;
-            font-size: 1.1rem;
-            transition: background-color 0.3s ease, opacity 0.3s ease;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
         }
-        button:hover:not(:disabled) {
+        .chatbot-options button:hover {
             background-color: #0056b3;
         }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
+         .chatbot-options button:last-child {
+            margin-right: 0;
         }
 
-        .results-list {
-            margin-top: 30px;
-        }
+        /* --- Search Controls --- */
+        .search-controls { margin-bottom: 30px; padding: 25px; border: 1px solid #b8daff; border-radius: 8px; background-color: #f8faff; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .control-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 8px; font-weight: bold; color: #004085; font-size: 0.95rem; }
+        input[type="text"], input[type="number"], select { padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); outline: none; }
+        .search-controls button { grid-column: 1 / -1; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1.1rem; font-weight: 500; transition: background-color 0.3s ease, opacity 0.3s ease; margin-top: 10px; }
+        .search-controls button:hover:not(:disabled) { background-color: #218838; }
+        .search-controls button:disabled { background-color: #cccccc; cursor: not-allowed; opacity: 0.7; }
 
-        .college-item {
-            background: #ffffff;
-            border: 1px solid #dee2e6;
-            margin-bottom: 15px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        /* --- Results --- */
+        .results-list { margin-top: 30px; }
+        .results-list h2 { color: #004085; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .college-item { background: #ffffff; border: 1px solid #dee2e6; margin-bottom: 15px; padding: 20px; /* Increased padding slightly */ border-radius: 8px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; }
+        .college-item:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); border-color: #007bff; }
+        .college-item h3 { margin-top: 0; margin-bottom: 10px; /* Increased spacing */ color: #007bff; }
+        .college-item p { margin-bottom: 8px; /* Increased spacing */ font-size: 0.95rem; color: #555; }
+        .college-item p strong {
+            color: #333;
+            min-width: 80px; /* Helps align labels */
+            display: inline-block;
+            margin-right: 5px;
         }
-        .college-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .college-item h3 {
-            margin-top: 0;
-            margin-bottom: 5px;
-            color: #007bff;
-        }
-        .college-item p {
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-            color: #555;
-        }
-         .college-item p strong {
+        .college-item p span.value { /* Style for the actual value */
              color: #333;
+             font-weight: 500;
+        }
+         .college-item p span.value.na { /* Style for N/A values */
+             color: #777;
+             font-style: italic;
          }
 
-        .loading, .error {
-            text-align: center;
-            padding: 20px;
-            font-weight: bold;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        .loading {
-            color: #f39c12;
-            background-color: #fff3cd;
-            border-color: #ffecb5;
-        }
-        .error {
-            color: #c0392b;
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-        }
 
-        /* --- Modal Styles --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+        /* Style for the link to College Scorecard */
+        .scorecard-link { display: inline-block; margin-top: 15px; padding: 6px 12px; background-color: #17a2b8; color: white !important; text-decoration: none; border-radius: 4px; font-size: 0.9rem; font-weight: 500; transition: background-color 0.2s ease; border: none; cursor: pointer; }
+        .scorecard-link:hover { background-color: #117a8b; color: white; text-decoration: none; }
+         .modal-scorecard-link { font-size: 1rem; padding: 8px 15px; display: block; text-align: center; margin-bottom: 15px; }
+         .modal-scorecard-link strong { color: white; }
 
-        .modal-content {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
 
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: #aaa;
-            transition: color 0.2s ease;
-        }
-        .modal-close:hover {
-            color: #777;
-        }
+        /* Loading, Error, Info */
+        .loading, .error, .info { text-align: center; padding: 15px 20px; font-weight: 500; border-radius: 4px; margin-bottom: 20px; border: 1px solid transparent; }
+        .loading { color: #856404; background-color: #fff3cd; border-color: #ffeeba; }
+        .error { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
 
-        .modal-content h2 {
-            margin-top: 0;
-            color: #004085;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-         .modal-content h4 {
-             margin-top: 15px;
-             margin-bottom: 10px;
-             color: #0056b3;
-         }
-        .modal-content p {
-            margin-bottom: 8px;
-            font-size: 1rem;
-            color: #444;
-        }
-        .modal-content a {
-             color: #007bff;
-             text-decoration: none;
-        }
-         .modal-content a:hover {
-             text-decoration: underline;
-         }
-         .modal-content ul {
-             padding-left: 20px;
-             margin-top: 5px;
-         }
-          .modal-content ul li {
-             margin-bottom: 5px;
-             color: #444;
-          }
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.65); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: #fff; padding: 30px 35px; border-radius: 8px; max-width: 750px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); }
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.8rem; font-weight: bold; cursor: pointer; border: none; background: none; color: #aaa; transition: color 0.2s ease; line-height: 1; }
+        .modal-close:hover { color: #333; }
+        .modal-content h2 { margin-top: 0; color: #004085; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-content h4 { margin-top: 20px; margin-bottom: 10px; color: #0056b3; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .modal-content p { margin-bottom: 10px; font-size: 1rem; color: #444; line-height: 1.7; }
+        .modal-content p strong { color: #111; margin-right: 5px; }
+        .modal-content a { color: #007bff; text-decoration: none; word-break: break-all; }
+        .modal-content a:hover { text-decoration: underline; }
+        .modal-content ul { padding-left: 25px; margin-top: 5px; margin-bottom: 15px; }
+        .modal-content ul li { margin-bottom: 8px; color: #444; }
+        .modal-content small { display: block; margin-top: 5px; color: #666; font-size: 0.9em; }
+
     </style>
 </head>
 <body>
-
     <div id="root"></div>
 
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -207,303 +138,249 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Helper function to format numbers (add commas)
-        const formatNumber = (num) => {
-            if (num === null || num === undefined) return 'N/A';
-            return num.toLocaleString();
+        // --- Helper Functions ---
+        // No changes needed in helpers: formatNumber, formatCurrency, formatPercentage, safeGet, getScorecardUrl
+        const formatNumber = (num) => (num === null || num === undefined) ? 'N/A' : num.toLocaleString();
+        const formatCurrency = (num) => (num === null || num === undefined) ? 'N/A' : '$' + num.toLocaleString();
+        const formatPercentage = (num) => (num === null || num === undefined) ? 'N/A' : (num * 100).toFixed(1) + '%';
+
+        const safeGet = (obj, path, formatter = (val) => val === null || val === undefined ? 'N/A' : val) => {
+            const keys = path.split('.');
+            let current = obj;
+            for (const key of keys) {
+                if (current === null || current === undefined) return 'N/A'; // Return 'N/A' string explicitly
+                current = current[key];
+            }
+            // Handle final value being null/undefined before formatting
+            if (current === null || current === undefined) return 'N/A';
+            // Apply formatter to the valid value
+            const formattedValue = formatter(current);
+            // Ensure formatter itself didn't return null/undefined somehow
+            return formattedValue === null || formattedValue === undefined ? 'N/A' : formattedValue;
         };
 
-         // Helper function to format currency
-        const formatCurrency = (num) => {
-             if (num === null || num === undefined) return 'N/A';
-             return '$' + num.toLocaleString();
-        };
-
-        // Helper function to format percentages
-        const formatPercentage = (num) => {
-             if (num === null || num === undefined) return 'N/A';
-             // API percentages are often 0-1, convert to 0-100
-             return (num * 100).toFixed(1) + '%';
+        const getScorecardUrl = (collegeId) => {
+            if (!collegeId) return '#';
+            return `https://collegescorecard.ed.gov/school/?${collegeId}`;
         };
 
 
-        // Component for displaying detailed college info in a modal
-        const CollegeDetailModal = ({ college, onClose }) => {
-            if (!college) return null; // Don't render if no college is selected
-
-            const safeGet = (obj, path, formatter = (val) => val) => {
-                 const keys = path.split('.');
-                 let current = obj;
-                 for (const key of keys) {
-                     if (current === null || current === undefined) return 'N/A';
-                     current = current[key];
-                 }
-                 return formatter(current);
-            };
+        // --- Chatbot Component (Re-added) ---
+        const Chatbot = () => {
+            const [step, setStep] = useState(0);
+            // Adjusted text slightly to mention the link
+            const messages = [
+                { text: "Welcome! How can I help you get started?", options: [{ text: "How do I search?", nextStep: 1 }, { text: "What filters can I use?", nextStep: 2 }] },
+                { text: "Use the boxes below to search by name or filter by size/cost, then click 'Search Colleges'.", options: [{ text: "What filters?", nextStep: 2 }, { text: "Got it!", nextStep: 0 }] },
+                { text: "Filter by: \n • Student Size (Min/Max) \n • Max Annual Cost. \n Use the 'View on College Scorecard' link in the results for full details.", options: [{ text: "How to search?", nextStep: 1 }, { text: "Thanks!", nextStep: 0 }] },
+            ];
+            const currentMessage = messages[step];
+            const handleOptionClick = (nextStep) => setStep(nextStep);
 
             return (
-                <div className="modal-overlay" onClick={onClose}> {/* Close modal when clicking outside */}
-                    <div className="modal-content" onClick={e => e.stopPropagation()}> {/* Prevent click inside from closing */}
-                        <button className="modal-close" onClick={onClose}>&times;</button>
+                <div className="chatbot">
+                    <p>{currentMessage.text}</p> {/* Removed split/map, using CSS white-space */}
+                    <div className="chatbot-options">
+                        {currentMessage.options.map((option, index) => (
+                            <button key={index} onClick={() => handleOptionClick(option.nextStep)}>{option.text}</button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
 
+        // --- Modal Component (No changes needed from last version) ---
+        const CollegeDetailModal = ({ college, onClose }) => {
+            if (!college) return null;
+            const scorecardUrl = getScorecardUrl(college?.id);
+            const formatUrl = (url) => {
+                if (!url) return 'N/A';
+                 const correctedUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `http://${url}`;
+                 return <a href={correctedUrl} target="_blank" rel="noopener noreferrer">{url}</a>;
+             };
+             const getOwnership = (code) => ({ 1: 'Public', 2: 'Private Non-profit', 3: 'Private For-profit' }[code] || 'N/A');
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close" onClick={onClose} aria-label="Close modal">&times;</button>
                         <h2>{safeGet(college, 'school.name')}</h2>
-
-                        <p><strong>Location:</strong> {safeGet(college, 'school.city')}, {safeGet(college, 'school.state')} {safeGet(college, 'school.zip')}</p>
-                        <p><strong>Website:</strong> {safeGet(college, 'school.school_url', (url) => url ? <a href={url} target="_blank" rel="noopener noreferrer">{url}</a> : 'N/A')}</p>
-                        <p><strong>Ownership:</strong> {safeGet(college, 'school.ownership', (val) => {
-                            // Map ownership codes to readable names
-                            const ownershipMap = {
-                                1: 'Public',
-                                2: 'Private Non-profit',
-                                3: 'Private For-profit'
-                            };
-                            return ownershipMap[val] || 'N/A';
-                        })}</p>
-                         <p><strong>Degree Types:</strong> {safeGet(college, 'school.degrees_awarded.predominant', (val) => {
-                             // Map degree codes
-                            const degreeMap = {
-                                 0: 'Non-Degree-Granting',
-                                 1: "Certificate Degree",
-                                 2: "Associate Degree",
-                                 3: "Bachelor's Degree",
-                                 4: "Graduate Degree"
-                             };
-                             return degreeMap[val] || 'N/A';
-                         })}</p>
-
-                        <h4>Admissions</h4>
-                        <p><strong>Overall Admission Rate:</strong> {safeGet(college, 'latest.admissions.admission_rate.overall', formatPercentage)}</p>
-                        <ul>
-                            <li><strong>SAT Critical Reading (25th-75th Percentile):</strong> {safeGet(college, 'latest.admissions.sat.25_percentile.critical_reading')} - {safeGet(college, 'latest.admissions.sat.75_percentile.critical_reading')}</li>
-                            <li><strong>SAT Math (25th-75th Percentile):</strong> {safeGet(college, 'latest.admissions.sat.25_percentile.math')} - {safeGet(college, 'latest.admissions.sat.75_percentile.math')}</li>
-                            <li><strong>ACT Composite (25th-75th Percentile):</strong> {safeGet(college, 'latest.admissions.act.25_percentile.composite')} - {safeGet(college, 'latest.admissions.act.75_percentile.composite')}</li>
-                        </ul>
-                         <p><small>Note: Percentile scores may not be available for all institutions or years.</small></p>
-
-
-                        <h4>Cost & Aid</h4>
-                        <p><strong>Total Annual Attendance Cost:</strong> {safeGet(college, 'latest.cost.attendance.academic_year', formatCurrency)}</p>
-                        <p><strong>Tuition and Fees (In-State):</strong> {safeGet(college, 'latest.cost.tuition.in_state', formatCurrency)}</p>
-                        <p><strong>Tuition and Fees (Out-of-State):</strong> {safeGet(college, 'latest.cost.tuition.out_of_state', formatCurrency)}</p>
-                        <p><strong>Federal Loan Rate:</strong> {safeGet(college, 'latest.aid.federal_loan_rate', formatPercentage)} <small>(% of undergraduate students receiving federal loans)</small></p>
-
-                        <h4>Outcomes</h4>
-                         <p><strong>Student Size:</strong> {safeGet(college, 'latest.student.size', formatNumber)}</p>
-                        <p><strong>Median Earnings 6 Years After Entry:</strong> {safeGet(college, 'latest.earnings.6_yrs_after_entry.median', formatCurrency)}</p>
-                        <p><strong>Median Earnings 10 Years After Entry:</strong> {safeGet(college, 'latest.earnings.10_yrs_after_entry.median', formatCurrency)}</p>
-                         <p><strong>4-Year Completion Rate (Pell Grant Recipients):</strong> {safeGet(college, 'latest.completion.completion_rate_4yr_pell', formatPercentage)}</p>
-
-
-                        {/* Add more detailed fields as needed */}
-
+                         <p>
+                            <a href={scorecardUrl} target="_blank" rel="noopener noreferrer" className="scorecard-link modal-scorecard-link">
+                                <strong>View Full Profile on College Scorecard Website</strong>
+                            </a>
+                         </p>
+                         <hr style={{ margin: '15px 0' }} />
+                        <h4>Quick Overview</h4>
+                        <p><strong>Location:</strong> <span className="value">{safeGet(college, 'school.city')}, {safeGet(college, 'school.state')}</span></p>
+                        <p><strong>Website:</strong> <span className="value">{safeGet(college, 'school.school_url', formatUrl)}</span></p>
+                        <p><strong>Ownership:</strong> <span className="value">{safeGet(college, 'school.ownership', getOwnership)}</span></p>
+                        <p><strong>Size:</strong> <span className="value">{safeGet(college, 'latest.student.size', formatNumber)}</span></p>
+                        <p><strong>Avg. Annual Cost:</strong> <span className="value">{safeGet(college, 'latest.cost.attendance.academic_year', formatCurrency)}</span></p>
                     </div>
                 </div>
             );
         };
 
 
-        // Main App Component
+        // --- Main App Component ---
         const App = () => {
-            // !!! IMPORTANT: Replace with your actual Data.gov API key !!!
             const DATA_GOV_API_KEY = "vwOMaF6FXDv56kEaDt0ocaumS9FhF1c6ckp1n4Mz"; // <-- PUT YOUR KEY HERE
             const API_BASE_URL = "https://api.data.gov/ed/collegescorecard/v1/schools.json?";
 
-            // State for search and filters
             const [searchTerm, setSearchTerm] = useState('');
             const [minSize, setMinSize] = useState('');
             const [maxSize, setMaxSize] = useState('');
-            const [maxTuition, setMaxTuition] = useState(''); // Using max attendance cost
-
-            // State for results and UI state
+            const [maxTuition, setMaxTuition] = useState('');
             const [colleges, setColleges] = useState([]);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState(null);
-            const [selectedCollege, setSelectedCollege] = useState(null); // State to manage modal visibility and data
+            const [info, setInfo] = useState(null);
+            const [selectedCollege, setSelectedCollege] = useState(null);
 
-            // Define the fields we want to fetch (a comprehensive list)
+             // Ensure necessary fields for summary display are requested
             const API_FIELDS = [
-                'id',
-                'school.name',
-                'school.city',
-                'school.state',
-                'school.zip',
-                'school.school_url',
-                'school.ownership',
-                'school.degrees_awarded.predominant',
-                'latest.student.size',
-                'latest.admissions.admission_rate.overall',
-                'latest.admissions.sat.25_percentile.critical_reading',
-                'latest.admissions.sat.75_percentile.critical_reading',
-                'latest.admissions.sat.25_percentile.math',
-                'latest.admissions.sat.75_percentile.math',
-                'latest.admissions.act.25_percentile.composite',
-                'latest.admissions.act.75_percentile.composite',
-                'latest.cost.attendance.academic_year', // Use attendance cost as a general figure
-                'latest.cost.tuition.in_state',
-                'latest.cost.tuition.out_of_state',
-                'latest.aid.federal_loan_rate',
-                'latest.earnings.6_yrs_after_entry.median',
-                'latest.earnings.10_yrs_after_entry.median',
-                'latest.completion.completion_rate_4yr_pell', // Example outcome
-                // Add more fields here as desired for detailed view
-            ].join(','); // Join with comma for the API parameter
+                'id', 'school.name', 'school.city', 'school.state', 'school.zip',
+                'school.school_url', 'school.ownership',
+                'latest.student.size', 'latest.cost.attendance.academic_year',
+                // Add any other fields needed for modal preview
+                 'latest.school.degrees_awarded.predominant',
+            ].join(',');
 
-            const handleSearch = async () => {
-                if (!DATA_GOV_API_KEY || DATA_GOV_API_KEY === "YOUR_DATA.GOV_API_KEY") {
-                    setError("Please replace 'YOUR_DATA.GOV_API_KEY' with your actual Data.gov API key.");
-                    return;
-                }
+             useEffect(() => { // API Key check
+                if (!DATA_GOV_API_KEY || DATA_GOV_API_KEY === "YOUR_DATA.GOV_API_KEY" || DATA_GOV_API_KEY.length < 10) {
+                     setError("API Key Missing/Invalid: Please get a free key from api.data.gov and add it.");
+                 }
+             }, []);
 
-                setLoading(true);
-                setError(null);
-                setColleges([]); // Clear previous results
-                setSelectedCollege(null); // Close modal if open
+            // handleSearch function remains the same as the previous version
+             const handleSearch = async () => {
+                 if (!DATA_GOV_API_KEY || DATA_GOV_API_KEY === "YOUR_DATA.GOV_API_KEY" || DATA_GOV_API_KEY.length < 10) {
+                     setError("API Key Missing/Invalid: Cannot search without a valid API key.");
+                     return;
+                 }
+                setLoading(true); setError(null); setInfo(null); setColleges([]); setSelectedCollege(null);
 
                 let queryParams = new URLSearchParams({
-                    api_key: DATA_GOV_API_KEY,
-                    fields: API_FIELDS,
-                    per_page: 100 // Fetch up to 100 results (API limit per page is 100)
-                    // For a real product, you'd implement pagination
+                    api_key: DATA_GOV_API_KEY, fields: API_FIELDS, per_page: 50 // Fetch 50 results
                 });
-
-                // Add search term filter (basic contains search)
-                if (searchTerm) {
-                    // Using __autocomplete or __fulltext might be better, but __contains is simpler
-                    queryParams.append('school.name__contains', searchTerm);
-                }
-
-                // Add size filter
-                if (minSize && maxSize) {
-                    queryParams.append('latest.student.size__range', `${minSize}..${maxSize}`);
-                } else if (minSize) {
-                    queryParams.append('latest.student.size__gte', minSize);
-                } else if (maxSize) {
-                    queryParams.append('latest.student.size__lte', maxSize);
-                }
-
-                // Add tuition filter (using max attendance cost)
-                if (maxTuition) {
-                    queryParams.append('latest.cost.attendance.academic_year__lte', maxTuition);
-                }
+                if (searchTerm.trim()) { queryParams.append('school.name__icontains', searchTerm.trim()); }
+                 const numMinSize = parseInt(minSize, 10), numMaxSize = parseInt(maxSize, 10), numMaxTuition = parseInt(maxTuition, 10);
+                 if (!isNaN(numMinSize) && !isNaN(numMaxSize)) queryParams.append('latest.student.size__range', `${numMinSize}..${numMaxSize}`);
+                 else if (!isNaN(numMinSize)) queryParams.append('latest.student.size__gte', numMinSize);
+                 else if (!isNaN(numMaxSize)) queryParams.append('latest.student.size__lte', numMaxSize);
+                 if (!isNaN(numMaxTuition)) queryParams.append('latest.cost.attendance.academic_year__lte', numMaxTuition);
 
                 const url = `${API_BASE_URL}${queryParams.toString()}`;
                 console.log("Fetching URL:", url);
 
                 try {
                     const response = await fetch(url);
-                    if (!response.ok) {
-                         const errorBody = await response.json().catch(() => null); // Try to parse JSON error, but don't fail if it's not JSON
-                         const errorMessage = errorBody && errorBody.message ? errorBody.message : response.statusText;
-                         throw new Error(`HTTP error! status: ${response.status}, message: ${errorMessage}`);
-                    }
                     const data = await response.json();
-
-                    if (!data.results || data.results.length === 0) {
-                         setColleges([]);
-                         setError("No colleges found matching your criteria.");
-                    } else {
-                         setColleges(data.results);
+                    if (!response.ok) {
+                        const errorMessage = data?.error?.message || `HTTP error! status: ${response.status} ${response.statusText}`;
+                        throw new Error(errorMessage);
                     }
-
+                     if (!data.results || data.results.length === 0) {
+                         setColleges([]);
+                         setInfo("No colleges found matching your criteria. Try broadening your search.");
+                     } else {
+                         setColleges(data.results);
+                     }
                 } catch (e) {
                     console.error("Fetch error:", e);
-                    setError("Failed to fetch college data. Please check your API key and network connection. Error details: " + e.message);
-                } finally {
-                    setLoading(false);
-                }
+                    setError(`Failed to fetch data: ${e.message}. Please check API key, network, and filters.`);
+                } finally { setLoading(false); }
             };
 
-             // Function to open the modal with college details
-            const openCollegeModal = (college) => {
-                setSelectedCollege(college);
-            };
 
-            // Function to close the modal
-            const closeCollegeModal = () => {
-                setSelectedCollege(null);
-            };
+            const openCollegeModal = (college) => setSelectedCollege(college);
+            const closeCollegeModal = () => setSelectedCollege(null);
+
+             // Helper function to render value or N/A clearly
+             const renderValue = (value) => {
+                 const isNA = (value === 'N/A' || value === undefined || value === null || value === '');
+                 return <span className={`value ${isNA ? 'na' : ''}`}>{isNA ? 'N/A' : value}</span>;
+             };
 
 
             return (
                 <div>
                     <h1>Premier College Finder</h1>
+                    {error && error.includes("API Key") && <div className="error">{error}</div>}
+
+                    {/* Re-added Chatbot */}
+                    <Chatbot />
 
                     <div className="search-controls">
-                        <div className="control-group">
+                         {/* Search controls remain the same */}
+                         <div className="control-group">
                             <label htmlFor="searchTerm">College Name:</label>
-                            <input
-                                id="searchTerm"
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="e.g., Harvard University"
-                            />
+                            <input id="searchTerm" type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="e.g., Stanford" disabled={loading}/>
                         </div>
-
                         <div className="control-group">
                              <label>Student Size:</label>
-                             <input
-                                 type="number"
-                                 value={minSize}
-                                 onChange={(e) => setMinSize(e.target.value)}
-                                 placeholder="Min size"
-                             />
+                             <input type="number" value={minSize} onChange={(e) => setMinSize(e.target.value)} placeholder="Min size (e.g., 1000)" min="0" disabled={loading}/>
                         </div>
                          <div className="control-group">
-                              <label>&nbsp;</label> {/* Placeholder for alignment */}
-                              <input
-                                  type="number"
-                                  value={maxSize}
-                                  onChange={(e) => setMaxSize(e.target.value)}
-                                  placeholder="Max size"
-                              />
+                             <label>&nbsp;</label>
+                             <input type="number" value={maxSize} onChange={(e) => setMaxSize(e.target.value)} placeholder="Max size (e.g., 50000)" min="0" disabled={loading}/>
                          </div>
-
-
-                         <div className="control-group">
-                            <label htmlFor="maxTuition">Max Annual Attendance Cost:</label>
-                            <input
-                                id="maxTuition"
-                                type="number"
-                                value={maxTuition}
-                                onChange={(e) => setMaxTuition(e.target.value)}
-                                placeholder="e.g., 30000"
-                            />
+                        <div className="control-group">
+                            <label htmlFor="maxTuition">Max Annual Cost ($):</label>
+                            <input id="maxTuition" type="number" value={maxTuition} onChange={(e) => setMaxTuition(e.target.value)} placeholder="e.g., 30000" min="0" disabled={loading}/>
                         </div>
-
-
-                        <button onClick={handleSearch} disabled={loading}>
-                            {loading ? 'Searching...' : 'Search Colleges'}
-                        </button>
+                        <button onClick={handleSearch} disabled={loading}>{loading ? 'Searching...' : 'Search Colleges'}</button>
                     </div>
 
-                    {error && <div className="error">{error}</div>}
-                    {loading && <div className="loading">Loading colleges...</div>}
+                     {loading && <div className="loading">Loading colleges...</div>}
+                     {error && !error.includes("API Key") && <div className="error">{error}</div>}
+                     {info && <div className="info">{info}</div>}
 
-
+                    {/* UPDATED: Results List Rendering to fix empty fields */}
                     <div className="results-list">
-                        {colleges.length > 0 && <h2>Found Colleges ({colleges.length})</h2>}
-                        {colleges.map(college => (
-                            <div
-                                key={college.id}
-                                className="college-item"
-                                onClick={() => openCollegeModal(college)} // Make the card clickable
-                            >
-                                <h3>{college['school.name']}</h3>
-                                <p><strong>Location:</strong> {college['school.city']}, {college['school.state']}</p>
-                                <p><strong>Student Size:</strong> {formatNumber(college['latest.student.size'])}</p>
-                                 <p><strong>Latest Attendance Cost:</strong> {formatCurrency(college['latest.cost.attendance.academic_year'])}</p>
-                                {/* Display other summary info */}
-                            </div>
-                        ))}
+                         {colleges.length > 0 && !loading && <h2>Found Colleges ({colleges.length})</h2>}
+                         {colleges.map(college => {
+                             const scorecardUrl = getScorecardUrl(college.id);
+                             // Use safeGet for each piece of data needed in the summary
+                             const city = safeGet(college, 'school.city');
+                             const state = safeGet(college, 'school.state');
+                             const location = (city === 'N/A' && state === 'N/A') ? 'N/A' : `${city !== 'N/A' ? city : ''}${city !== 'N/A' && state !== 'N/A' ? ', ' : ''}${state !== 'N/A' ? state : ''}`; // Combine city/state carefully
+                             const size = safeGet(college, 'latest.student.size', formatNumber);
+                             const cost = safeGet(college, 'latest.cost.attendance.academic_year', formatCurrency);
+
+                             return (
+                                 <div
+                                     key={college.id}
+                                     className="college-item"
+                                     onClick={() => openCollegeModal(college)} // Opens modal with preview
+                                     role="button" tabIndex="0"
+                                     onKeyPress={(e) => (e.key === 'Enter' || e.key === ' ') && openCollegeModal(college)}
+                                 >
+                                     <h3>{safeGet(college, 'school.name')}</h3>
+                                     {/* Use renderValue helper to show N/A clearly */}
+                                     <p><strong>Location:</strong> {renderValue(location)}</p>
+                                     <p><strong>Size:</strong> {renderValue(size)}</p>
+                                     <p><strong>Avg Cost:</strong> {renderValue(cost)}</p>
+
+                                     <a
+                                         href={scorecardUrl} target="_blank" rel="noopener noreferrer"
+                                         className="scorecard-link"
+                                         onClick={(e) => e.stopPropagation()} // Prevent modal opening on link click
+                                         onKeyPress={(e) => e.stopPropagation()}
+                                     >
+                                         View on College Scorecard website
+                                     </a>
+                                 </div>
+                             );
+                         })}
                     </div>
 
-                    {/* Render the modal if a college is selected */}
+                    {/* Modal remains for quick preview */}
                     <CollegeDetailModal
                         college={selectedCollege}
                         onClose={closeCollegeModal}
                     />
-
                 </div>
             );
         };
