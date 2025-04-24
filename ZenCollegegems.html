@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate College Finder </title>
+    <title>Simple College Finder</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -62,7 +62,6 @@
             background-color: #fff;
         }
         button {
-            grid-column: 1 / -1; /* Span across all columns */
             padding: 12px;
             background-color: #28a745; /* Green button */
             color: white;
@@ -73,6 +72,11 @@
             font-weight: 500;
             transition: background-color 0.3s ease, opacity 0.3s ease;
         }
+         /* Specific style for the main search button */
+         .search-controls button {
+             grid-column: 1 / -1; /* Make only the main search button span */
+         }
+
         button:hover:not(:disabled) {
             background-color: #218838;
         }
@@ -103,7 +107,7 @@
             margin-bottom: 12px;
             padding: 15px 20px;
             border-radius: 8px;
-            cursor: pointer;
+            /* Removed cursor: pointer as the whole card is not clickable anymore */
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .college-item:hover {
@@ -174,101 +178,21 @@
             border: 1px solid #f5c6cb;
         }
 
-        /* --- Modal Styles --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-             /* Fade in effect */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+        /* Style for the College Scorecard link button */
+        .college-scorecard-link {
+            display: inline-block; /* Make it behave like a button */
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #f0ad4e; /* Orange color */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: background-color 0.2s ease;
         }
-         .modal-overlay.visible {
-             opacity: 1;
-             visibility: visible;
-         }
-
-
-        .modal-content {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            max-width: 800px;
-            width: 95%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            /* Slide in effect */
-             transform: translateY(20px);
-             transition: transform 0.3s ease;
+        .college-scorecard-link:hover {
+            background-color: #ec971f; /* Darker orange on hover */
         }
-         .modal-overlay.visible .modal-content {
-             transform: translateY(0);
-         }
-
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 1.8rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: #aaa;
-            transition: color 0.2s ease;
-        }
-        .modal-close:hover {
-            color: #777;
-        }
-
-        .modal-content h2 {
-            margin-top: 0;
-            color: #1a3b5d;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-         .modal-content h4 {
-             margin-top: 20px;
-             margin-bottom: 10px;
-             color: #1a3b5d;
-             font-weight: 600;
-         }
-        .modal-content p, .modal-content ul {
-            margin-bottom: 10px;
-            font-size: 1rem;
-            color: #444;
-        }
-        .modal-content a {
-             color: #007bff;
-             text-decoration: none;
-        }
-         .modal-content a:hover {
-             text-decoration: underline;
-         }
-         .modal-content ul {
-             padding-left: 25px;
-             margin-top: 5px;
-         }
-          .modal-content ul li {
-             margin-bottom: 8px;
-             color: #444;
-          }
-          .modal-content .data-label {
-              font-weight: 500;
-              color: #333;
-          }
     </style>
 </head>
 <body>
@@ -284,30 +208,37 @@
 
         // --- Helper Functions ---
         const formatNumber = (num) => {
-            if (num === null || num === undefined) return 'N/A';
+            if (num === null || num === undefined) return '';
             return num.toLocaleString();
         };
 
         const formatCurrency = (num) => {
-             if (num === null || num === undefined) return 'N/A';
+             if (num === null || num === undefined) return '';
              return '$' + num.toLocaleString();
         };
 
         const formatPercentage = (num) => {
-             if (num === null || num === undefined) return 'N/A';
+             if (num === null || num === undefined) return '';
              // API percentages are often 0-1, convert to 0-100
              return (num * 100).toFixed(1) + '%';
         };
 
          // Safely get nested property with optional formatter
-        const safeGet = (obj, path, formatter = (val) => (val === null || val === undefined ? 'N/A' : val)) => {
+        const safeGet = (obj, path, formatter = (val) => (val === null || val === undefined ? '' : val)) => {
+            if (!obj) return ''; // Handle null/undefined object
             const keys = path.split('.');
             let current = obj;
+
             for (const key of keys) {
-                if (current === null || current === undefined || typeof current !== 'object') return 'N/A';
+                // Check if current is null, undefined, or not an object before trying to access key
+                if (current === null || current === undefined || typeof current !== 'object' || !(key in current)) {
+                    return ''; // Return empty string instead of N/A
+                }
                 current = current[key];
             }
-             return formatter(current);
+
+            // Apply formatter only if the final value is not null or undefined
+            return formatter(current);
         };
 
          // Map ownership codes to readable names
@@ -317,7 +248,7 @@
                  2: 'Private Non-profit',
                  3: 'Private For-profit'
              };
-             return ownershipMap[code] || 'N/A';
+             return ownershipMap[code] || '';
          };
 
          // Map degree codes to readable names
@@ -329,88 +260,15 @@
                  3: "Bachelor's Degree",
                  4: "Graduate Degree"
              };
-             return degreeMap[code] || 'N/A';
+             return degreeMap[code] || '';
          };
-
-
-        // --- College Detail Modal Component ---
-        const CollegeDetailModal = ({ college, onClose }) => {
-            // Use `visible` class for CSS transitions
-            const modalClass = `modal-overlay ${college ? 'visible' : ''}`;
-
-            // Close on escape key press
-            useEffect(() => {
-                 const handleEscape = (event) => {
-                     if (event.key === 'Escape') {
-                         onClose();
-                     }
-                 };
-                 if (college) {
-                     document.addEventListener('keydown', handleEscape);
-                 } else {
-                     document.removeEventListener('keydown', handleEscape);
-                 }
-                 return () => {
-                     document.removeEventListener('keydown', handleEscape);
-                 };
-            }, [college, onClose]); // Re-run effect when college or onClose changes
-
-            // Don't render modal content unless college data is present
-            if (!college) return <div className={modalClass}></div>;
-
-
-            return (
-                <div className={modalClass} onClick={onClose}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}> {/* Prevent click inside from closing */}
-                        <button className="modal-close" onClick={onClose}>&times;</button>
-
-                        <h2>{safeGet(college, 'school.name')}</h2>
-
-                        <h4>Overview</h4>
-                        <p><span className="data-label">Location:</span> {safeGet(college, 'school.city')}, {safeGet(college, 'school.state')} {safeGet(college, 'school.zip')}</p>
-                        <p><span className="data-label">Website:</span> {safeGet(college, 'school.school_url', (url) => url ? <a href={url} target="_blank" rel="noopener noreferrer">{url}</a> : 'N/A')}</p>
-                        <p><span className="data-label">Ownership:</span> {safeGet(college, 'school.ownership', getOwnershipName)}</p>
-                         <p><span className="data-label">Predominant Degree:</span> {safeGet(college, 'school.degrees_awarded.predominant', getDegreeName)}</p>
-                         <p><span className="data-label">Student Size:</span> {safeGet(college, 'latest.student.size', formatNumber)}</p>
-
-
-                        <h4>Admissions</h4>
-                        <p><span className="data-label">Overall Admission Rate:</span> {safeGet(college, 'latest.admissions.admission_rate.overall', formatPercentage)}</p>
-                        <ul>
-                            <li><span className="data-label">SAT Critical Reading (25th-75th Percentile):</span> {safeGet(college, 'latest.admissions.sat.25_percentile.critical_reading')} - {safeGet(college, 'latest.admissions.sat.75_percentile.critical_reading')}</li>
-                            <li><span className="data-label">SAT Math (25th-75th Percentile):</span> {safeGet(college, 'latest.admissions.sat.25_percentile.math')} - {safeGet(college, 'latest.admissions.sat.75_percentile.math')}</li>
-                            <li><span className="data-label">ACT Composite (25th-75th Percentile):</span> {safeGet(college, 'latest.admissions.act.25_percentile.composite')} - {safeGet(college, 'latest.admissions.act.75_percentile.composite')}</li>
-                        </ul>
-                         <p><small>Note: Admission data may not be available or applicable for all institutions.</small></p>
-
-
-                        <h4>Cost & Aid (Latest Academic Year)</h4>
-                        <p><span className="data-label">Total Annual Attendance Cost:</span> {safeGet(college, 'latest.cost.attendance.academic_year', formatCurrency)}</p>
-                        <p><span className="data-label">Tuition and Fees (In-State):</span> {safeGet(college, 'latest.cost.tuition.in_state', formatCurrency)}</p>
-                        <p><span className="data-label">Tuition and Fees (Out-of-State):</span> {safeGet(college, 'latest.cost.tuition.out_of_state', formatCurrency)}</p>
-                        <p><span className="data-label">Average Net Price (for students receiving Title IV aid):</span> {safeGet(college, 'latest.cost.net_price.private.by_income_level.0-30000', formatCurrency)} (Lowest Income Bracket Example)</p> {/* Example of Net Price by Income */}
-                        <p><span className="data-label">Federal Loan Rate:</span> {safeGet(college, 'latest.aid.federal_loan_rate', formatPercentage)} <small>(% of undergraduate students receiving federal loans)</small></p>
-
-                        <h4>Outcomes</h4>
-                        <p><span className="data-label">Median Earnings 6 Years After Entry:</span> {safeGet(college, 'latest.earnings.6_yrs_after_entry.median', formatCurrency)}</p>
-                        <p><span className="data-label">Median Earnings 10 Years After Entry:</span> {safeGet(college, 'latest.earnings.10_yrs_after_entry.median', formatCurrency)}</p>
-                         <p><span className="data-label">4-Year Completion Rate (Pell Grant Recipients):</span> {safeGet(college, 'latest.completion.completion_rate_4yr_pell', formatPercentage)}</p>
-                         <p><span className="data-label">Retention Rate (First-time, full-time students):</span> {safeGet(college, 'latest.student.retention_rate.four_year.full_time', formatPercentage)}</p> {/* Example retention rate */}
-
-
-                        {/* Add more detailed fields here as desired for detailed view */}
-
-                    </div>
-                </div>
-            );
-        };
 
 
         // --- Main App Component ---
         const App = () => {
             // !!! IMPORTANT: Replace with your actual Data.gov API key !!!
             // KEEP IN MIND: Exposing your API key client-side is a security risk for a real business product.
-            const DATA_GOV_API_KEY = "zabc"; // <-- PUT YOUR KEY HERE
+            const DATA_GOV_API_KEY = "GhsqipqWdkumIJ8PTj3nkqMhvrBBVYF7T5rwfOCp"; // <-- PUT YOUR KEY HERE
             const API_BASE_URL = "https://api.data.gov/ed/collegescorecard/v1/schools.json?";
 
             // State for search and filters
@@ -429,62 +287,22 @@
             const [displayedColleges, setDisplayedColleges] = useState([]);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState(null);
-            const [selectedCollege, setSelectedCollege] = useState(null); // State to manage modal visibility and data
 
             // --- Pagination State ---
             const [currentPage, setCurrentPage] = useState(1);
             const itemsPerPage = 10; // Display 10 items per page
 
-            // Define the fields we want to fetch (more comprehensive list)
-            // Added fields for new filters and more details in modal
+            // Define the fields we want to fetch (minimized list for list display)
             const API_FIELDS = [
                 'id',
                 'school.name',
                 'school.city',
                 'school.state',
-                'school.zip',
-                'school.school_url',
-                'school.ownership', // Added for filter and display
-                'school.degrees_awarded.predominant', // Added for filter and display
                 'latest.student.size',
-                'latest.admissions.admission_rate.overall',
-                'latest.admissions.sat.25_percentile.critical_reading',
-                'latest.admissions.sat.75_percentile.critical_reading',
-                'latest.admissions.sat.25_percentile.math',
-                'latest.admissions.sat.75_percentile.math',
-                'latest.admissions.act.25_percentile.composite',
-                'latest.admissions.act.75_percentile.composite',
-                'latest.cost.attendance.academic_year',
-                'latest.cost.tuition.in_state',
-                'latest.cost.tuition.out_of_state',
-                'latest.cost.net_price.private.by_income_level.0-30000', // Example Net Price field
-                'latest.aid.federal_loan_rate',
-                'latest.earnings.6_yrs_after_entry.median',
-                'latest.earnings.10_yrs_after_entry.median',
-                'latest.completion.completion_rate_4yr_pell',
-                'latest.student.retention_rate.four_year.full_time', // Added retention rate
-                // Add more fields here as desired for detailed view or future filters
+                'school.ownership', // Keep ownership for display
             ].join(','); // Join with comma for the API parameter
 
             // --- Effects ---
-
-            // Effect to read URL parameters on initial load
-            useEffect(() => {
-                const params = new URLSearchParams(window.location.search);
-                setSearchTerm(params.get('name') || '');
-                setMinSize(params.get('minSize') || '');
-                setMaxSize(params.get('maxSize') || '');
-                setMaxTuition(params.get('maxTuition') || '');
-                setSelectedState(params.get('state') || '');
-                setSelectedOwnership(params.get('ownership') || '');
-                setSelectedDegree(params.get('degree') || '');
-                setSortBy(params.get('sortBy') || '');
-                // Trigger search if parameters exist
-                if (params.toString()) {
-                    // Delay slightly to ensure state updates before search
-                    setTimeout(handleSearch, 100);
-                }
-            }, []); // Empty dependency array means this runs once on mount
 
             // Effect to update displayed colleges when allColleges or currentPage changes
             useEffect(() => {
@@ -493,27 +311,11 @@
                  setDisplayedColleges(allColleges.slice(startIndex, endIndex));
             }, [allColleges, currentPage]);
 
-
-            // Effect to update URL parameters whenever search/filter/sort state changes
-            useEffect(() => {
-                const params = new URLSearchParams();
-                if (searchTerm) params.append('name', searchTerm);
-                if (minSize) params.append('minSize', minSize);
-                if (maxSize) params.append('maxSize', maxSize);
-                if (maxTuition) params.append('maxTuition', maxTuition);
-                if (selectedState) params.append('state', selectedState);
-                if (selectedOwnership) params.append('ownership', selectedOwnership);
-                if (selectedDegree) params.append('degree', selectedDegree);
-                if (sortBy) params.append('sortBy', sortBy);
-
-                window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
-            }, [searchTerm, minSize, maxSize, maxTuition, selectedState, selectedOwnership, selectedDegree, sortBy]); // Dependencies on all search/filter/sort states
-
-
             // --- API Fetch Function ---
             const handleSearch = async () => {
                 if (!DATA_GOV_API_KEY || DATA_GOV_API_KEY === "YOUR_DATA.GOV_API_KEY") {
                     setError("Please replace 'YOUR_DATA.GOV_API_KEY' with your actual Data.gov API key.");
+                    console.error("API Key Placeholder Error: Please replace 'YOUR_DATA.GOV_API_KEY' with your actual Data.gov API key.");
                     return;
                 }
 
@@ -521,7 +323,6 @@
                 setError(null);
                 setAllColleges([]); // Clear previous raw results
                 setDisplayedColleges([]); // Clear previous displayed results
-                setSelectedCollege(null); // Close modal if open
                 setCurrentPage(1); // Reset pagination to page 1 on new search
 
                 let queryParams = new URLSearchParams({
@@ -544,6 +345,8 @@
                     queryParams.append('latest.student.size__lte', maxSize);
                 }
                 if (maxTuition) {
+                     // Note: maxTuition filter still uses 'latest.cost.attendance.academic_year'
+                     // even though it's not displayed in the list, it's used for filtering
                     queryParams.append('latest.cost.attendance.academic_year__lte', maxTuition);
                 }
                  if (selectedState) {
@@ -553,6 +356,8 @@
                      queryParams.append('school.ownership', selectedOwnership);
                  }
                  if (selectedDegree) {
+                      // Note: selectedDegree filter still uses 'school.degrees_awarded.predominant'
+                      // even though it's not displayed in the list, it's used for filtering
                      queryParams.append('school.degrees_awarded.predominant', selectedDegree);
                  }
 
@@ -570,7 +375,9 @@
                     if (!response.ok) {
                          const errorBody = await response.json().catch(() => null);
                          const errorMessage = errorBody && errorBody.message ? errorBody.message : response.statusText;
-                         throw new Error(`HTTP error! status: ${response.status}, message: ${errorMessage}`);
+                         const fullError = `HTTP error! status: ${response.status}, message: ${errorMessage}`;
+                         console.error("API Fetch Error:", fullError);
+                         throw new Error(fullError);
                     }
                     const data = await response.json();
 
@@ -578,13 +385,15 @@
                          setAllColleges([]);
                          setDisplayedColleges([]);
                          setError("No colleges found matching your criteria.");
+                         console.warn("API returned no results for query:", url);
                     } else {
                          setAllColleges(data.results); // Store all fetched results (up to 100)
                          // displayedColleges update is handled by the useEffect
+                         console.log("Successfully fetched", data.results.length, "colleges.");
                     }
 
                 } catch (e) {
-                    console.error("Fetch error:", e);
+                    console.error("Fetch Exception:", e);
                     setError("Failed to fetch college data. Please check your API key, filters, or network connection. Error details: " + e.message);
                 } finally {
                     setLoading(false);
@@ -605,22 +414,6 @@
                     setCurrentPage(currentPage - 1);
                 }
             };
-
-             const handleGoToPage = (pageNumber) => {
-                 if (pageNumber >= 1 && pageNumber <= totalPages) {
-                     setCurrentPage(pageNumber);
-                 }
-             };
-
-            // --- Modal Handlers ---
-            const openCollegeModal = (college) => {
-                setSelectedCollege(college);
-            };
-
-            const closeCollegeModal = () => {
-                setSelectedCollege(null);
-            };
-
 
             // --- State Options for Filters ---
             // This is just a static list for demonstration. In a real app, you might fetch or generate this.
@@ -656,8 +449,8 @@
 
 
             return (
-                <div>
-                    <h1>Ultimate College Finder</h1>
+                <> {/* Use React Fragment as the single parent */}
+                    <h1>Simple College Finder</h1>
 
                     <div className="search-controls">
                         <div className="control-group">
@@ -736,46 +529,79 @@
                         </button>
                     </div>
 
-                    {error && <div className={`error ${!error && 'hidden'}`}>{error}</div>}
-                    {loading && <div className={`loading ${!loading && 'hidden'}`}>Loading colleges...</div>}
+                    {/* Wrapped adjacent elements in a Fragment */}
+                    <>
+                        {error && <div className={`error ${!error && 'hidden'}`}>{error}</div>}
+                        {loading && <div className={`loading ${!loading && 'hidden'}`}>Loading colleges...</div>}
 
 
-                    <div className="results-section">
-                        {allColleges.length > 0 && (
-                            <div className="results-header">
-                                <h2>Showing {displayedColleges.length} of {allColleges.length} Results</h2>
-                                {/* Sorting control could also go here */}
-                            </div>
-                        )}
-
-                        <div className="results-list">
-                            {displayedColleges.map(college => (
-                                <div
-                                    key={college.id}
-                                    className="college-item"
-                                    onClick={() => openCollegeModal(college)}
-                                >
-                                    <h3>{safeGet(college, 'school.name')}</h3>
-                                    <p><strong>Location:</strong> {safeGet(college, 'school.city')}, {safeGet(college, 'school.state')}</p>
-                                     <div className="summary-metrics">
-                                        <span><strong>Size:</strong> {safeGet(college, 'latest.student.size', formatNumber)}</span>
-                                        <span><strong>Cost:</strong> {safeGet(college, 'latest.cost.attendance.academic_year', formatCurrency)}</span>
-                                        <span><strong>Adm Rate:</strong> {safeGet(college, 'latest.admissions.admission_rate.overall', formatPercentage)}</span>
-                                         {/* Add more key metrics here */}
-                                     </div>
+                        <div className="results-section">
+                            {allColleges.length > 0 && (
+                                <div className="results-header">
+                                    <h2>Showing {displayedColleges.length} of {allColleges.length} Results</h2>
                                 </div>
-                            ))}
-                        </div>
+                            )}
 
-                        {/* --- Pagination Controls --- */}
-                        {allColleges.length > itemsPerPage && (
-                            <div className="pagination-controls">
-                                <button onClick={handlePrevPage} disabled={currentPage === 1 || loading}>Previous</button>
-                                <span>Page {currentPage} of {totalPages}</span>
-                                {/* Could add page number inputs here */}
-                                <button onClick={handleNextPage} disabled={currentPage === totalPages || loading}>Next</button>
+                            <div className="results-list">
+                                {displayedColleges.map(college => {
+                                    // Get college details
+                                    const name = safeGet(college, 'school.name', val => val || 'Unnamed College');
+                                    const city = safeGet(college, 'school.city');
+                                    const state = safeGet(college, 'school.state');
+                                    const size = safeGet(college, 'latest.student.size', formatNumber);
+                                    const ownership = safeGet(college, 'school.ownership', getOwnershipName);
+                                    
+                                    // Format location string
+                                    let location = '';
+                                    if (city && state) {
+                                        location = `${city}, ${state}`;
+                                    } else if (city) {
+                                        location = city;
+                                    } else if (state) {
+                                        location = state;
+                                    }
+
+                                    return (
+                                        <div
+                                            key={college.id}
+                                            className="college-item"
+                                        >
+                                            <h3>{name}</h3>
+                                            
+                                            {location && (
+                                                <p><strong>Location:</strong> {location}</p>
+                                            )}
+
+                                            <div className="summary-metrics">
+                                                {size && (
+                                                    <span><strong>Size:</strong> {size}</span>
+                                                )}
+                                                {ownership && (
+                                                    <span><strong>Type:</strong> {ownership}</span>
+                                                )}
+                                            </div>
+
+                                            <a
+                                                href={`https://collegescorecard.ed.gov/school/?${college.id}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="college-scorecard-link"
+                                            >
+                                                View on College Scorecard
+                                            </a>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        )}
+
+                            {/* --- Pagination Controls --- */}
+                            {allColleges.length > itemsPerPage && (
+                                <div className="pagination-controls">
+                                    <button onClick={handlePrevPage} disabled={currentPage === 1 || loading}>Previous</button>
+                                    <span>Page {currentPage} of {totalPages}</span>
+                                    <button onClick={handleNextPage} disabled={currentPage === totalPages || loading}>Next</button>
+                                </div>
+                            )}
 
                          {allColleges.length > 0 && allColleges.length < 100 && (
                               <p style={{textAlign: 'center', marginTop: '20px', fontSize: '0.9em', color: '#666'}}>
@@ -788,15 +614,9 @@
                                    Displaying up to 100 results (API page limit). Refine your search for more specific results.
                                </p>
                            )}
-                    </div>
-
-                    {/* Render the modal */}
-                    <CollegeDetailModal
-                        college={selectedCollege}
-                        onClose={closeCollegeModal}
-                    />
-
-                </div>
+                        </div>
+                    </>
+                </>
             );
         };
 
