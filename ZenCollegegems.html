@@ -1,630 +1,232 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple College Finder</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f7fa;
-            color: #333;
-        }
-        #root {
-            max-width: 960px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #1a3b5d;
-            margin-bottom: 30px;
-            font-weight: 700;
-        }
-        .search-controls {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #d1e7dd;
-            border-radius: 8px;
-            background-color: #e9f7ef;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-         @media (max-width: 600px) {
-            .search-controls {
-                grid-template-columns: 1fr; /* Stack controls on small screens */
-            }
-         }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #1a3b5d;
-        }
-        input[type="text"], input[type="number"], select {
-            padding: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            background-color: #fff;
-        }
-        button {
-            padding: 12px;
-            background-color: #28a745; /* Green button */
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 500;
-            transition: background-color 0.3s ease, opacity 0.3s ease;
-        }
-         /* Specific style for the main search button */
-         .search-controls button {
-             grid-column: 1 / -1; /* Make only the main search button span */
-         }
-
-        button:hover:not(:disabled) {
-            background-color: #218838;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .results-section {
-            margin-top: 30px;
-        }
-
-         .results-header {
-             display: flex;
-             justify-content: space-between;
-             align-items: center;
-             margin-bottom: 15px;
-         }
-          .results-header h2 {
-              margin: 0;
-              color: #1a3b5d;
-          }
-
-        .college-item {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            margin-bottom: 12px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            /* Removed cursor: pointer as the whole card is not clickable anymore */
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .college-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-        .college-item h3 {
-            margin-top: 0;
-            margin-bottom: 5px;
-            color: #007bff;
-            font-weight: 600;
-        }
-        .college-item p {
-            margin-bottom: 4px;
-            font-size: 0.9rem;
-            color: #555;
-        }
-         .college-item p strong {
-             color: #333;
-         }
-        .college-item .summary-metrics {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 8px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .pagination-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        .pagination-controls button {
-            width: auto;
-            padding: 8px 15px;
-            background-color: #007bff;
-        }
-
-
-        .loading, .error {
-            text-align: center;
-            padding: 20px;
-            font-weight: bold;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-         .loading.hidden, .error.hidden {
-             opacity: 0;
-             height: 0;
-             padding: 0;
-             margin: 0;
-             overflow: hidden;
-         }
-        .loading {
-            color: #856404;
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-        }
-        .error {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-        }
-
-        /* Style for the College Scorecard link button */
-        .college-scorecard-link {
-            display: inline-block; /* Make it behave like a button */
-            margin-top: 10px;
-            padding: 8px 12px;
-            background-color: #f0ad4e; /* Orange color */
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            transition: background-color 0.2s ease;
-        }
-        .college-scorecard-link:hover {
-            background-color: #ec971f; /* Darker orange on hover */
-        }
-    </style>
+  <title>Simple College Finder</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+    #root {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #1a3b5d;
+    }
+    .form-container {
+      background: #e9f7ef;
+      padding: 20px;
+      border-radius: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .form-container label {
+      font-weight: 500;
+      color: #1a3b5d;
+    }
+    .form-container input,
+    .form-container select {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .form-container button {
+      grid-column: 1 / -1;
+      padding: 12px;
+      font-size: 1rem;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .college-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .college-card h2 {
+      margin: 0 0 10px;
+      color: #1a3b5d;
+    }
+    .college-card p {
+      margin: 4px 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
+  <div id="root"></div>
 
-    <div id="root"></div>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState } = React;
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+    const App = () => {
+      const [search, setSearch] = useState({
+        name: '',
+        minSize: '',
+        maxSize: '',
+        tuition: '',
+        state: '',
+        ownership: '',
+        degree: '',
+        sort: '',
+      });
+      const [results, setResults] = useState([]);
+      const [error, setError] = useState(null);
 
-        // --- Helper Functions ---
-        const formatNumber = (num) => {
-            if (num === null || num === undefined) return '';
-            return num.toLocaleString();
-        };
+      const API_KEY = 
+      const BASE_URL = 
 
-        const formatCurrency = (num) => {
-             if (num === null || num === undefined) return '';
-             return '$' + num.toLocaleString();
-        };
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        setSearch({ ...search, [name]: value });
+      };
 
-        const formatPercentage = (num) => {
-             if (num === null || num === undefined) return '';
-             // API percentages are often 0-1, convert to 0-100
-             return (num * 100).toFixed(1) + '%';
-        };
+      const handleSearch = async () => {
+        setError(null);
+        setResults([]);
 
-         // Safely get nested property with optional formatter
-        const safeGet = (obj, path, formatter = (val) => (val === null || val === undefined ? '' : val)) => {
-            if (!obj) return ''; // Handle null/undefined object
-            const keys = path.split('.');
-            let current = obj;
+        const params = new URLSearchParams({
+          api_key: API_KEY,
+          fields: [
+            'id',
+            'school.name',
+            'school.city',
+            'school.state',
+            'school.ownership',
+            'latest.student.size',
+            'latest.cost.attendance.academic_year'
+          ].join(','),
+          per_page: 10,
+        });
 
-            for (const key of keys) {
-                // Check if current is null, undefined, or not an object before trying to access key
-                if (current === null || current === undefined || typeof current !== 'object' || !(key in current)) {
-                    return ''; // Return empty string instead of N/A
-                }
-                current = current[key];
-            }
+        if (search.name) params.append('school.name__contains', search.name);
+        if (search.minSize && search.maxSize) {
+          params.append('latest.student.size__range', `${search.minSize}..${search.maxSize}`);
+        } else if (search.minSize) {
+          params.append('latest.student.size__gte', search.minSize);
+        } else if (search.maxSize) {
+          params.append('latest.student.size__lte', search.maxSize);
+        }
+        if (search.tuition) params.append('latest.cost.attendance.academic_year__lte', search.tuition);
+        if (search.state) params.append('school.state', search.state);
+        if (search.ownership) params.append('school.ownership', search.ownership);
+        if (search.degree) params.append('school.degrees_awarded.predominant', search.degree);
+        if (search.sort) params.append('_sort', search.sort);
 
-            // Apply formatter only if the final value is not null or undefined
-            return formatter(current);
-        };
+        try {
+          const response = await fetch(`${BASE_URL}?${params.toString()}`);
+          const data = await response.json();
+          if (data && data.results) {
+            setResults(data.results);
+          } else {
+            setError("No results found.");
+          }
+        } catch (e) {
+          console.error(e);
+          setError("Failed to fetch data.");
+        }
+      };
 
-         // Map ownership codes to readable names
-         const getOwnershipName = (code) => {
-             const ownershipMap = {
-                 1: 'Public',
-                 2: 'Private Non-profit',
-                 3: 'Private For-profit'
-             };
-             return ownershipMap[code] || '';
-         };
+      return (
+        <div>
+          <h1>Simple College Finder</h1>
+          <div className="form-container">
+            <div>
+              <label>College Name:</label>
+              <input name="name" placeholder="e.g., Stanford" onChange={handleChange} />
+            </div>
+            <div>
+              <label>Student Size (Min):</label>
+              <input name="minSize" placeholder="e.g., 1000" onChange={handleChange} />
+            </div>
+            <div>
+              <label>Student Size (Max):</label>
+              <input name="maxSize" placeholder="e.g., 10000" onChange={handleChange} />
+            </div>
+            <div>
+              <label>Max Annual Attendance Cost:</label>
+              <input name="tuition" placeholder="e.g., 30000" onChange={handleChange} />
+            </div>
+            <div>
+              <label>State:</label>
+              <select name="state" onChange={handleChange}>
+                <option value="">Any State</option>
+                {["CA", "NY", "TX", "FL", "IL"].map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label>Ownership:</label>
+              <select name="ownership" onChange={handleChange}>
+                <option value="">Any Ownership</option>
+                <option value="1">Public</option>
+                <option value="2">Private Non-profit</option>
+                <option value="3">Private For-profit</option>
+              </select>
+            </div>
+            <div>
+              <label>Degree Type:</label>
+              <select name="degree" onChange={handleChange}>
+                <option value="">Any Degree Type</option>
+                <option value="0">Non-Degree</option>
+                <option value="1">Certificate</option>
+                <option value="2">Associate</option>
+                <option value="3">Bachelor's</option>
+                <option value="4">Graduate</option>
+              </select>
+            </div>
+            <div>
+              <label>Sort By:</label>
+              <select name="sort" onChange={handleChange}>
+                <option value="">Relevance (Default)</option>
+                <option value="school.name">Name (A-Z)</option>
+                <option value="-school.name">Name (Z-A)</option>
+                <option value="latest.student.size">Size (Low)</option>
+                <option value="-latest.student.size">Size (High)</option>
+              </select>
+            </div>
+            <button onClick={handleSearch}>Search Colleges</button>
+          </div>
 
-         // Map degree codes to readable names
-         const getDegreeName = (code) => {
-             const degreeMap = {
-                 0: 'Non-Degree-Granting',
-                 1: "Certificate Degree",
-                 2: "Associate Degree",
-                 3: "Bachelor's Degree",
-                 4: "Graduate Degree"
-             };
-             return degreeMap[code] || '';
-         };
+          {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
 
+          {results.map(col => (
+            <div className="college-card" key={col.id || col['school.name']}>
+              <h2>{col['school.name'] || 'N/A'}</h2>
+              <p><strong>Location:</strong> {col['school.city'] || 'N/A'}, {col['school.state'] || 'N/A'}</p>
+              <p><strong>Size:</strong> {col['latest.student.size']?.toLocaleString() || 'N/A'}</p>
+              <p><strong>Tuition:</strong> {col['latest.cost.attendance.academic_year'] ? `$${col['latest.cost.attendance.academic_year'].toLocaleString()}` : 'N/A'}</p>
+              <p><strong>Ownership:</strong> {{1:'Public',2:'Private NP',3:'Private FP'}[col['school.ownership']] || 'N/A'}</p>
+            </div>
+          ))}
+        </div>
+      );
+    };
 
-        // --- Main App Component ---
-        const App = () => {
-            // !!! IMPORTANT: Replace with your actual Data.gov API key !!!
-            // KEEP IN MIND: Exposing your API key client-side is a security risk for a real business product.
-            const DATA_GOV_API_KEY = "GhsqipqWdkumIJ8PTj3nkqMhvrBBVYF7T5rwfOCp"; // <-- PUT YOUR KEY HERE
-            const API_BASE_URL = "https://api.data.gov/ed/collegescorecard/v1/schools.json?";
-
-            // State for search and filters
-            const [searchTerm, setSearchTerm] = useState('');
-            const [minSize, setMinSize] = useState('');
-            const [maxSize, setMaxSize] = useState('');
-            const [maxTuition, setMaxTuition] = useState(''); // Using max attendance cost
-            const [selectedState, setSelectedState] = useState('');
-            const [selectedOwnership, setSelectedOwnership] = useState(''); // 1, 2, 3
-            const [selectedDegree, setSelectedDegree] = useState(''); // 0, 1, 2, 3, 4
-            const [sortBy, setSortBy] = useState(''); // API sort parameter format
-
-            // State for raw results from API (up to per_page limit)
-            const [allColleges, setAllColleges] = useState([]);
-            // State for results displayed on current page (client-side pagination)
-            const [displayedColleges, setDisplayedColleges] = useState([]);
-            const [loading, setLoading] = useState(false);
-            const [error, setError] = useState(null);
-
-            // --- Pagination State ---
-            const [currentPage, setCurrentPage] = useState(1);
-            const itemsPerPage = 10; // Display 10 items per page
-
-            // Define the fields we want to fetch (minimized list for list display)
-            const API_FIELDS = [
-                'id',
-                'school.name',
-                'school.city',
-                'school.state',
-                'latest.student.size',
-                'school.ownership', // Keep ownership for display
-            ].join(','); // Join with comma for the API parameter
-
-            // --- Effects ---
-
-            // Effect to update displayed colleges when allColleges or currentPage changes
-            useEffect(() => {
-                 const startIndex = (currentPage - 1) * itemsPerPage;
-                 const endIndex = startIndex + itemsPerPage;
-                 setDisplayedColleges(allColleges.slice(startIndex, endIndex));
-            }, [allColleges, currentPage]);
-
-            // --- API Fetch Function ---
-            const handleSearch = async () => {
-                if (!DATA_GOV_API_KEY || DATA_GOV_API_KEY === "YOUR_DATA.GOV_API_KEY") {
-                    setError("Please replace 'YOUR_DATA.GOV_API_KEY' with your actual Data.gov API key.");
-                    console.error("API Key Placeholder Error: Please replace 'YOUR_DATA.GOV_API_KEY' with your actual Data.gov API key.");
-                    return;
-                }
-
-                setLoading(true);
-                setError(null);
-                setAllColleges([]); // Clear previous raw results
-                setDisplayedColleges([]); // Clear previous displayed results
-                setCurrentPage(1); // Reset pagination to page 1 on new search
-
-                let queryParams = new URLSearchParams({
-                    api_key: DATA_GOV_API_KEY,
-                    fields: API_FIELDS,
-                    per_page: 100 // Fetch up to 100 results per page (API limit)
-                    // NOTE: For a real product, you'd implement API-level pagination
-                    // using 'page' parameter and fetch multiple pages if needed.
-                });
-
-                // Add filters
-                if (searchTerm) {
-                    queryParams.append('school.name__contains', searchTerm); // Basic contains search
-                }
-                if (minSize && maxSize) {
-                    queryParams.append('latest.student.size__range', `${minSize}..${maxSize}`);
-                } else if (minSize) {
-                    queryParams.append('latest.student.size__gte', minSize);
-                } else if (maxSize) {
-                    queryParams.append('latest.student.size__lte', maxSize);
-                }
-                if (maxTuition) {
-                     // Note: maxTuition filter still uses 'latest.cost.attendance.academic_year'
-                     // even though it's not displayed in the list, it's used for filtering
-                    queryParams.append('latest.cost.attendance.academic_year__lte', maxTuition);
-                }
-                 if (selectedState) {
-                     queryParams.append('school.state', selectedState);
-                 }
-                 if (selectedOwnership) {
-                     queryParams.append('school.ownership', selectedOwnership);
-                 }
-                 if (selectedDegree) {
-                      // Note: selectedDegree filter still uses 'school.degrees_awarded.predominant'
-                      // even though it's not displayed in the list, it's used for filtering
-                     queryParams.append('school.degrees_awarded.predominant', selectedDegree);
-                 }
-
-                 // Add Sorting (using API's _sort parameter)
-                 if (sortBy) {
-                     queryParams.append('_sort', sortBy);
-                 }
-
-
-                const url = `${API_BASE_URL}${queryParams.toString()}`;
-                console.log("Fetching URL:", url);
-
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                         const errorBody = await response.json().catch(() => null);
-                         const errorMessage = errorBody && errorBody.message ? errorBody.message : response.statusText;
-                         const fullError = `HTTP error! status: ${response.status}, message: ${errorMessage}`;
-                         console.error("API Fetch Error:", fullError);
-                         throw new Error(fullError);
-                    }
-                    const data = await response.json();
-
-                    if (!data.results || data.results.length === 0) {
-                         setAllColleges([]);
-                         setDisplayedColleges([]);
-                         setError("No colleges found matching your criteria.");
-                         console.warn("API returned no results for query:", url);
-                    } else {
-                         setAllColleges(data.results); // Store all fetched results (up to 100)
-                         // displayedColleges update is handled by the useEffect
-                         console.log("Successfully fetched", data.results.length, "colleges.");
-                    }
-
-                } catch (e) {
-                    console.error("Fetch Exception:", e);
-                    setError("Failed to fetch college data. Please check your API key, filters, or network connection. Error details: " + e.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            // --- Pagination Handlers ---
-            const totalPages = Math.ceil(allColleges.length / itemsPerPage);
-
-            const handleNextPage = () => {
-                if (currentPage < totalPages) {
-                    setCurrentPage(currentPage + 1);
-                }
-            };
-
-            const handlePrevPage = () => {
-                if (currentPage > 1) {
-                    setCurrentPage(currentPage - 1);
-                }
-            };
-
-            // --- State Options for Filters ---
-            // This is just a static list for demonstration. In a real app, you might fetch or generate this.
-            const states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC", "PR"]; // Add more if needed
-            const ownershipOptions = [
-                { value: '', label: 'Any Ownership' },
-                { value: '1', label: 'Public' },
-                { value: '2', label: 'Private Non-profit' },
-                { value: '3', label: 'Private For-profit' },
-            ];
-             const degreeOptions = [
-                 { value: '', label: 'Any Degree Type' },
-                 { value: '0', label: 'Non-Degree-Granting' },
-                 { value: '1', label: "Certificate Degree" },
-                 { value: '2', label: "Associate Degree" },
-                 { value: '3', label: "Bachelor's Degree" },
-                 { value: '4', label: "Graduate Degree" },
-             ];
-
-             const sortOptions = [
-                 { value: '', label: 'Relevance (Default)' },
-                 { value: 'school.name', label: 'Name (A-Z)' },
-                 { value: '-school.name', label: 'Name (Z-A)' },
-                 { value: 'latest.student.size', label: 'Size (Lowest)' },
-                 { value: '-latest.student.size', label: 'Size (Highest)' },
-                 { value: 'latest.cost.attendance.academic_year', label: 'Cost (Lowest)' },
-                 { value: '-latest.cost.attendance.academic_year', label: 'Cost (Highest)' },
-                  { value: 'latest.admissions.admission_rate.overall', label: 'Admission Rate (Lowest)' },
-                 { value: '-latest.admissions.admission_rate.overall', label: 'Admission Rate (Highest)' },
-                  { value: 'latest.earnings.6_yrs_after_entry.median', label: 'Earnings 6yr (Lowest)' },
-                 { value: '-latest.earnings.6_yrs_after_entry.median', label: 'Earnings 6yr (Highest)' },
-             ];
-
-
-            return (
-                <> {/* Use React Fragment as the single parent */}
-                    <h1>Simple College Finder</h1>
-
-                    <div className="search-controls">
-                        <div className="control-group">
-                            <label htmlFor="searchTerm">College Name:</label>
-                            <input
-                                id="searchTerm"
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="e.g., Stanford"
-                            />
-                        </div>
-
-                        <div className="control-group">
-                             <label>Student Size (Min):</label>
-                             <input
-                                 type="number"
-                                 value={minSize}
-                                 onChange={(e) => setMinSize(e.target.value)}
-                                 placeholder="e.g., 1000"
-                             />
-                        </div>
-                         <div className="control-group">
-                              <label>Student Size (Max):</label>
-                              <input
-                                  type="number"
-                                  value={maxSize}
-                                  onChange={(e) => setMaxSize(e.target.value)}
-                                  placeholder="e.g., 10000"
-                              />
-                         </div>
-
-                         <div className="control-group">
-                            <label htmlFor="maxTuition">Max Annual Attendance Cost:</label>
-                            <input
-                                id="maxTuition"
-                                type="number"
-                                value={maxTuition}
-                                onChange={(e) => setMaxTuition(e.target.value)}
-                                placeholder="e.g., 30000"
-                            />
-                        </div>
-
-                         <div className="control-group">
-                             <label htmlFor="stateFilter">State:</label>
-                             <select id="stateFilter" value={selectedState} onChange={(e) => setSelectedState(e.target.value)}>
-                                 <option value="">Any State</option>
-                                 {states.map(state => <option key={state} value={state}>{state}</option>)}
-                             </select>
-                         </div>
-
-                         <div className="control-group">
-                            <label htmlFor="ownershipFilter">Ownership:</label>
-                            <select id="ownershipFilter" value={selectedOwnership} onChange={(e) => setSelectedOwnership(e.target.value)}>
-                                {ownershipOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-                            </select>
-                        </div>
-
-                        <div className="control-group">
-                            <label htmlFor="degreeFilter">Degree Type:</label>
-                            <select id="degreeFilter" value={selectedDegree} onChange={(e) => setSelectedDegree(e.target.value)}>
-                                {degreeOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-                            </select>
-                        </div>
-
-                         <div className="control-group">
-                            <label htmlFor="sortSelect">Sort By:</label>
-                            <select id="sortSelect" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                                {sortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-                            </select>
-                        </div>
-
-
-                        <button onClick={handleSearch} disabled={loading}>
-                            {loading ? 'Searching...' : 'Search Colleges'}
-                        </button>
-                    </div>
-
-                    {/* Wrapped adjacent elements in a Fragment */}
-                    <>
-                        {error && <div className={`error ${!error && 'hidden'}`}>{error}</div>}
-                        {loading && <div className={`loading ${!loading && 'hidden'}`}>Loading colleges...</div>}
-
-
-                        <div className="results-section">
-                            {allColleges.length > 0 && (
-                                <div className="results-header">
-                                    <h2>Showing {displayedColleges.length} of {allColleges.length} Results</h2>
-                                </div>
-                            )}
-
-                            <div className="results-list">
-                                {displayedColleges.map(college => {
-                                    // Get college details
-                                    const name = safeGet(college, 'school.name', val => val || 'Unnamed College');
-                                    const city = safeGet(college, 'school.city');
-                                    const state = safeGet(college, 'school.state');
-                                    const size = safeGet(college, 'latest.student.size', formatNumber);
-                                    const ownership = safeGet(college, 'school.ownership', getOwnershipName);
-                                    
-                                    // Format location string
-                                    let location = '';
-                                    if (city && state) {
-                                        location = `${city}, ${state}`;
-                                    } else if (city) {
-                                        location = city;
-                                    } else if (state) {
-                                        location = state;
-                                    }
-
-                                    return (
-                                        <div
-                                            key={college.id}
-                                            className="college-item"
-                                        >
-                                            <h3>{name}</h3>
-                                            
-                                            {location && (
-                                                <p><strong>Location:</strong> {location}</p>
-                                            )}
-
-                                            <div className="summary-metrics">
-                                                {size && (
-                                                    <span><strong>Size:</strong> {size}</span>
-                                                )}
-                                                {ownership && (
-                                                    <span><strong>Type:</strong> {ownership}</span>
-                                                )}
-                                            </div>
-
-                                            <a
-                                                href={`https://collegescorecard.ed.gov/school/?${college.id}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="college-scorecard-link"
-                                            >
-                                                View on College Scorecard
-                                            </a>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* --- Pagination Controls --- */}
-                            {allColleges.length > itemsPerPage && (
-                                <div className="pagination-controls">
-                                    <button onClick={handlePrevPage} disabled={currentPage === 1 || loading}>Previous</button>
-                                    <span>Page {currentPage} of {totalPages}</span>
-                                    <button onClick={handleNextPage} disabled={currentPage === totalPages || loading}>Next</button>
-                                </div>
-                            )}
-
-                         {allColleges.length > 0 && allColleges.length < 100 && (
-                              <p style={{textAlign: 'center', marginTop: '20px', fontSize: '0.9em', color: '#666'}}>
-                                  Note: Displaying all {allColleges.length} results found based on the API's limit (100 per page).
-                                  For larger potential results, a real application would implement full API pagination.
-                              </p>
-                         )}
-                           {allColleges.length === 100 && (
-                               <p style={{textAlign: 'center', marginTop: '20px', fontSize: '0.9em', color: '#666'}}>
-                                   Displaying up to 100 results (API page limit). Refine your search for more specific results.
-                               </p>
-                           )}
-                        </div>
-                    </>
-                </>
-            );
-        };
-
-        // --- Render the App ---
-        const container = document.getElementById('root');
-        const root = ReactDOM.createRoot(container);
-        root.render(<App />);
-
-    </script>
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
 </body>
 </html>
